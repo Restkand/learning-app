@@ -1,0 +1,35 @@
+# Developer Workflow
+
+- Create branch with developer name (only first time)
+  Time: only first time (see create developement environement)
+
+  ```
+  git branch yohan
+  ```
+
+- Checkout to branch
+  Time: every morning before work
+
+  ```
+  git checkout yohan
+  ```
+
+- Pull data from remote main
+  Time: every morning before work
+
+  ```
+  git pull origin main
+  ```
+
+- Add, Commit and Push data to remote/branch
+  Time: after finish coding
+
+  ```
+  git add .
+  git commit -m 'change documentation'
+  git fetch
+  git pull origin main
+  git push
+  ```
+
+- After merging, back to 2 and 3

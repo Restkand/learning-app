@@ -1,14 +1,14 @@
 {
-  "docs": "Docu",
+  "docs": "Docs",
   "developer" : {
     "title": "Scope: Developer",
     "children": [{ 
       "dev-git": {"title": "Clone Repository"},
-      "dev-docker": {"title": "Run Docker"} }] 
+      "dev-docker": {"title": "Run Docker"},
+      "dev-db": {"title": "Setup Database"},
+      "dev-workflow": {"title": "Developer Workflow"},
+      "dev-db_update": {"title": "Update Database"}
+    }] 
   },
-  "about" : "About",
-  "fruits": {
-    "title": "Fruits",
-    "children": [{ "apple": "Apple" }, { "melon": "Melon" }] 
-  }
+  "about" : "About"
 }
