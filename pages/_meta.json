@@ -1,0 +1,14 @@
+{
+  "docs": "Docs",
+  "developer" : {
+    "title": "Scope: Developer",
+    "children": [{ 
+      "dev-git": {"title": "Clone Repository"},
+      "dev-docker": {"title": "Run Docker"} }] 
+  },
+  "about" : "About",
+  "fruits": {
+    "title": "Fruits",
+    "children": [{ "apple": "Apple" }, { "melon": "Melon" }] 
+  }
+}

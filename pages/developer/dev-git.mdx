@@ -1,0 +1,233 @@
+# Clone Repository
+
+Go to your project folder
+
+```bash
+git clone https://git.ptsenopati.com/dev/senar.git
+```
+
+```mermaid
+  flowchart LR
+    remote[Remote Repository]
+    repository[Local Repository]
+    index[Stagging Directory]
+    workspace[Working Directory]
+
+    %% Styles for dark mode
+    style remote fill:#2E2E2E, color:#FFFFFF, stroke:#CCCCCC, stroke-width:2px, border-radius: 8px
+    style repository fill:#3A3A3A, color:#FFFFFF, stroke:#CCCCCC, stroke-width:2px, border-radius: 8px
+    style index fill:#4A4A4A, color:#FFFFFF, stroke:#CCCCCC, stroke-width:2px, border-radius: 8px
+    style workspace fill:#5A5A5A, color:#FFFFFF, stroke:#CCCCCC, stroke-width:2px, border-radius: 8px
+
+    remote --> repository
+    repository --> index
+    index --> workspace
+
+    %% Link styles
+    linkStyle 0,1,2 stroke:#CCCCCC, stroke-width:2px
+```
+
+## Create your local branch
+
+```bash
+git branch yohan
+```
+
+## Checkout to your branch
+
+```bash
+git checkout yohan
+```
+
+## Check branch
+
+```bash
+git branch
+```
+
+## Push
+
+The git push command is used to upload local repository content to a remote repository. Pushing is how you transfer commits from your local repository to a remote repo.
+
+```bash
+git pull origin main
+git add .
+git commit -m 'Alasan commit'
+git push origin yohan
+```
+
+```mermaid
+flowchart TD
+    remote[Remote Repository]
+    repository[Local Repository]
+    index[Stagging Directory]
+    workspace[Working Directory]
+
+    %% Dark mode styles
+    style remote fill:#2E2E2E, color:#FFFFFF, stroke:#CCCCCC, stroke-width:2px, border-radius:5px
+    style repository fill:#3A3A3A, color:#FFFFFF, stroke:#CCCCCC, stroke-width:2px, border-radius:5px
+    style index fill:#4A4A4A, color:#FFFFFF, stroke:#CCCCCC, stroke-width:2px, border-radius:5px
+    style workspace fill:#5A5A5A, color:#FFFFFF, stroke:#CCCCCC, stroke-width:2px, border-radius:5px
+
+    remote --> repository
+    repository --> index
+    index --> workspace
+
+    %% Git Operations
+    remote -- git pull --> repository
+    remote -- git pull --> workspace
+    repository -- git commit --> index
+    index -- git add --> workspace
+    repository -- git push --> remote
+
+    %% Link styles
+    linkStyle 0,1,2 stroke:#CCCCCC, stroke-width:2px, stroke-dasharray: 5,5
+    linkStyle 3,4,5 stroke:#CCCCCC, stroke-width:2px, stroke-dasharray: 5,5
+```
+
+## Fetch vs Pull
+
+The key difference between git fetch and pull is that git pull copies changes from a remote repository directly into your working directory, while git fetch does not. The git fetch command only copies changes into your local Git repo. The git pull command does both.
+
+```mermaid
+flowchart TD
+    remote[Remote Repository]
+    repository[Local Repository]
+    index[Stagging Directory]
+    workspace[Working Directory]
+
+    %% Dark mode styles
+    style remote fill:#2E2E2E, color:#FFFFFF, stroke:#CCCCCC, stroke-width:2px, border-radius:5px
+    style repository fill:#3A3A3A, color:#FFFFFF, stroke:#CCCCCC, stroke-width:2px, border-radius:5px
+    style index fill:#4A4A4A, color:#FFFFFF, stroke:#CCCCCC, stroke-width:2px, border-radius:5px
+    style workspace fill:#5A5A5A, color:#FFFFFF, stroke:#CCCCCC, stroke-width:2px, border-radius:5px
+
+    remote -- git fetch --> repository
+    remote -- git pull --> repository
+    remote -- git pull --> workspace
+    repository -- git commit --> index
+    index -- git add --> workspace
+    repository -- git push --> remote
+
+    %% Link styles
+    linkStyle 0,1,2,3,4 stroke:#CCCCCC, stroke-width:2px
+```
+
+### Fetch
+
+Git fetch is a primary command used to download contents from a remote repository. git fetch is used in conjunction with git remote , git branch , git checkout , and git reset to update a local repository to the state of a remote. The git fetch command is a critical piece of collaborative git work flows.
+
+```bash
+git fetch origin main
+```
+
+check status
+
+```bash
+git status
+```
+
+### Pull
+
+The git pull command is used to fetch and download content from a remote repository and immediately update the local repository to match that content. Merging remote upstream changes into your local repository is a common task in Git-based collaboration work flows.
+
+```bash
+git pull origin main
+```
+
+check status
+
+```bash
+git status
+```
+
+### Checkout
+
+The git checkout command lets you navigate between the branches created by git branch . Checking out a branch updates the files in the working directory to match the version stored in that branch, and it tells Git to record all new commits on that branch.
+
+```mermaid
+flowchart TD
+    local[Local]
+    workspace[Working Directory]
+    index[Stagging Directory]
+    repository[Local Repository]
+
+    %% Dark mode styles
+    style local fill:#2E2E2E, color:#FFFFFF, stroke:#CCCCCC, stroke-width:2px, border-radius:5px
+    style workspace fill:#5A5A5A, color:#FFFFFF, stroke:#CCCCCC, stroke-width:2px, border-radius:5px
+    style index fill:#4A4A4A, color:#FFFFFF, stroke:#CCCCCC, stroke-width:2px, border-radius:5px
+    style repository fill:#3A3A3A, color:#FFFFFF, stroke:#CCCCCC, stroke-width:2px, border-radius:5px
+
+    local --> index
+    local --> repository
+
+    index -- git checkout --> workspace
+    repository -- git checkout HEAD --> workspace
+
+    %% Link styles
+    linkStyle 0,1 stroke:#CCCCCC, stroke-width:2px, stroke-dasharray: 5,5
+```
+
+## Stash
+
+The git stash command takes your uncommitted changes (both staged and unstaged), saves them away for later use, and then reverts them from your working copy. For example: $ git status On branch main Changes to be committed: new file: style. css Changes not staged for commit: modified: index.
+
+```mermaid
+flowchart TD
+    local[Local]
+    workspace[Working Directory]
+    stash[Stash]
+
+    %% Dark mode styles
+    style local fill:#2E2E2E, color:#FFFFFF, stroke:#CCCCCC, stroke-width:2px, border-radius:5px
+    style workspace fill:#5A5A5A, color:#FFFFFF, stroke:#CCCCCC, stroke-width:2px, border-radius:5px
+    style stash fill:#FFA500, color:#000000, stroke:#CCCCCC, stroke-width:2px, border-radius:5px
+
+    local --> workspace
+    stash -- git stash --> workspace
+    workspace -- git stash pop --> stash
+
+    %% Link styles
+    linkStyle 0,1 stroke:#CCCCCC, stroke-width:2px, stroke-dasharray: 5,5
+```
+
+```mermaid
+classDiagram
+    class tm_data_order_header {
+        +int id (PK)
+        +int company_id (FK)
+        +int customer_id (FK)
+        +varchar(30) remark
+    }
+
+    class tm_data_order_load {
+        +int id (PK)
+        +int header_id (FK)
+        +varchar(30) remark
+    }
+
+    class tm_data_order_route {
+        +int id (PK)
+        +int header_id (FK)
+        +varchar(30) remark
+    }
+
+    class tm_data_order_trip {
+        +int id (PK)
+        +int header_id (FK)
+        +int route_id (FK)
+        +int load_id (FK)
+        +varchar(30) remark
+    }
+
+    %% Dark mode styles
+    style tm_data_order_header fill:#2E2E2E, color:#FFFFFF, stroke:#CCCCCC, stroke-width:2px, border-radius:5px
+    style tm_data_order_load fill:#3A3A3A, color:#FFFFFF, stroke:#CCCCCC, stroke-width:2px, border-radius:5px
+    style tm_data_order_route fill:#4A4A4A, color:#FFFFFF, stroke:#CCCCCC, stroke-width:2px, border-radius:5px
+    style tm_data_order_trip fill:#5A5A5A, color:#FFFFFF, stroke:#CCCCCC, stroke-width:2px, border-radius:5px
+
+    tm_data_order_header --|> tm_data_order_load : has
+    tm_data_order_header --|> tm_data_order_trip : has
+    tm_data_order_load --|> tm_data_order_trip : has
+    tm_data_order_route --|> tm_data_order_trip : has
+```
