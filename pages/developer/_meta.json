@@ -1,4 +1,7 @@
 {
   "dev-git": "Clone Repository",
-  "dev-docker": "Run Docker"
+  "dev-docker": "Run Docker",
+  "dev-db": "Setup Database",
+  "dev-workflow": "Developer Workflow",
+  "dev-db_update": "Update Database"
 }

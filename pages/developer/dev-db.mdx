@@ -1,0 +1,130 @@
+# Setup Database
+
+## Empty local database folder
+
+- change directory to your senar folder
+- docker compose down
+- empty directory project\senar\database\
+- docker compose up -d --build
+
+## Download database
+
+- ssh to 10.10.10.6 (dev db) or 10.10.10.8 (prod db)
+  > dev
+  ```bash
+  ssh senopati@10.10.10.6
+  ```
+  > prod
+  ```bash
+  ssh senopati@10.10.10.8
+  ```
+- run
+
+  > dev: ~/bin/backup_db_dev_senar.sh
+
+  ```bash
+  cd ~/bin
+  ./backup_db_dev_senar.sh
+  ```
+
+  > prod: ~/bin/backup_mysql_cc.sh
+
+  ```bash
+  cd ~/bin
+  ./backup_mysql_cc.sh
+  ```
+
+  ### script file
+
+  > backup_db_dev_senar.sh (dev)
+
+  ```bash
+  #!/bin/bash
+  dst=~/archives/dev_senar_db.`/bin/date '+%Y-%m-%d.%H-%M-%S'`.sql.gz
+  cnt=senar-mariadb
+  db=cc_app
+  usr=root
+  pwd=docker
+  dmp=/bin/mysqldump
+  echo "backup db: $db in echo $cnt is starting..."
+  docker exec $cnt $dmp -u $usr -p$pwd --routines --databases $db | gzip > $dst
+  echo "backup db: $db in echo $cnt is completed"
+  ```
+
+  > backup_mysql_cc.sh (prod)
+
+  ```bash
+  #!/bin/bash
+  dst=/home/senopati/archives/db_cc_app.`/bin/date '+%Y-%m-%d.%H-%M-%S'`.sql.gz
+  db=cc_app
+  user=root
+  password=senopati#2018
+  echo "backup database Senopati Application starting..."
+  mysqldump -u $user -p$password --databases $db | gzip > $dst
+  echo "backup completed"
+  ```
+
+- download backup file with winscp or scp from local terminal
+
+  > dev: ~/archives/dev_senar_db.xxxx-xx-xx.xx-xx-xx.sql.gz or
+  > From powershell
+
+  ```bash
+  scp senopati@10.10.10.6:/home/senopati/archives/dev_senar_db.xxxx-xx-xx.xx-xx-xx.sql.gz .
+  ```
+
+  > prod: ~/archives/db_cc_app.xxxx-xx-xx.xx-xx-xx.sql.gz
+  > From powershell
+
+  ```bash
+  scp senopati@10.10.10.8:/home/senopati/archives/db_cc_app.xxxx-xx-xx.xx-xx-xx.sql.gz .
+  ```
+
+## Load Database to Local Development
+
+### Method 1 Use docker exec (Faster and recommended)
+
+- On local machine, rename
+  > dev: dev_senar_db.xxxx-xx-xx.xx-xx-xx.sql.gz as cc_app.sql.gz or
+  > prod: db_cc_app.xxxx-xx-xx.xx-xx-xx.sql.gz as cc_app.sql.gz
+- Load sql file
+
+  > Linux
+
+  ```bash
+  gunzip -c ~/Downloads/cc_app.sql.gz | docker exec -i senar-mariadb /usr/bin/mysql -u root -pdocker cc_app
+  ```
+
+  > Windows 11
+
+  - extract cc_app.sql.gz to cc_app.sql
+  - change directory to where you put cc_app.sql file
+  - load with Get-Content from PowerShell terminal
+
+  ```bash
+  Get-Content cc_app.sql | docker exec -i senar-mariadb /usr/bin/mariadb -u root -pdocker cc_app
+  ```
+
+### Alternative Method 2 Use Extract and Heidi (Easy but slower)
+
+- on local machine, rename
+
+  > dev: dev_senar_db.xxxx-xx-xx.xx-xx-xx.sql.gz as cc_app.sql.gz or
+  > prod: db_cc_app.xxxx-xx-xx.xx-xx-xx.sql.gz as cc_app.sql.gz
+
+- open Heidi or Other Database Client
+
+  > setting DB Client
+
+  ```plain
+  host: 127.0.0.1
+  user: root
+  password: docker
+  db: app
+  port: 3323
+  ```
+
+- select cc_app db
+- import database from sql file
+> From heidi -> Load SQL File -> Select dev_senar_db.xxxx-xx-xx.xx-xx-xx.sql -> Yes -> Run File(s) d
+  
