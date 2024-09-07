@@ -1,0 +1,31 @@
+# Get Value
+
+## Penggunaan get_value() di Aplikasi
+
+Dalam file aplikasi, Anda dapat menggunakan metode get_value() yang diakses melalui instance dari model database (M_database):
+
+```php copy
+$md = $this->M_database;
+$value = $md->get_value('field_name', 'table_name', 'column_name', 'value');
+```
+
+- **field_name**: Nama field (kolom) yang ingin Anda ambil nilainya.
+- **table_name**: Nama tabel dari mana data akan diambil.
+- **column_name**: Kolom yang akan digunakan sebagai syarat (misalnya, `id` atau `username`).
+- **value**: Nilai dari kolom yang digunakan sebagai syarat.
+
+### Contoh Penggunaan
+
+Misalkan Anda ingin mendapatkan nilai dari field **price** di tabel **products** berdasarkan **product_id**:
+
+```php copy
+$price = $md->get_value('price', 'products', 'product_id', 123);
+echo $price; // Output: nilai price dari produk dengan ID 123
+
+```
+
+### Kesimpulan
+
+Metode get_value() menyediakan cara yang cepat dan efisien untuk mengambil satu nilai dari tabel dalam database dengan kriteria tertentu. Ini fleksibel karena dapat digunakan dengan berbagai jenis kolom dan tabel, dan menangani kasus di mana tidak ada hasil dengan mengembalikan nilai default.
+
+Jika Anda ingin mengambil nilai dengan syarat tertentu, cukup panggil fungsi ini di aplikasi Anda dan sesuaikan dengan kebutuhan spesifik.
