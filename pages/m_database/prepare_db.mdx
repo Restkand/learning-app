@@ -1,0 +1,146 @@
+# Prepare DB
+
+## Penggunaan prepare_db() di Aplikasi:
+
+Fungsi **prepare_db()** adalah fungsi yang digunakan untuk membangun query database secara dinamis berdasarkan parameter yang diberikan. Fungsi ini mendukung berbagai jenis query SQL seperti **SELECT**, **JOIN**, **WHERE**, **LIKE**, **GROUP BY**, **ORDER BY**, serta beberapa operasi filter lainnya. Fungsi ini memudahkan pembuatan query yang kompleks dengan menggunakan parameter yang didefinisikan dalam array.
+
+### Parameter
+
+Fungsi **prepare_db()** menerima satu parameter dalam bentuk array asosiatif:
+
+- **SELECT**: Mengambil kolom tertentu dari tabel.
+- **FROM**: Menentukan tabel sumber data.
+- **JOIN**: Menggabungkan tabel lain berdasarkan kondisi yang diberikan.
+- **WHERE / OR WHERE**: Menambahkan kondisi pencarian.
+- **LIKE / OR LIKE**: Mencari dengan pola tertentu.
+- **GROUP BY**: Mengelompokkan hasil berdasarkan kolom tertentu.
+- **ORDER BY**: Mengurutkan hasil berdasarkan kolom tertentu.
+- **Filter**: Menambahkan filter tambahan untuk data numerik dan kondisi **HAVING**.
+
+## Contoh Penggunaan
+
+### Contoh 1
+
+Fungsi **prepare_db()** biasanya digunakan dalam konteks pengambilan data dari tabel. Berikut adalah contoh bagaimana fungsi ini digunakan dalam fungsi get_table_data():
+
+```php copy
+public function get_table_data($get)
+{
+    $md = $this->M_database;
+
+    // Inisialisasi parameter tambahan seperti limit, tanggal mulai, dan tanggal akhir
+    $limit_no = $get['limit'] ?? '';
+    $date_start = $get['date_start'] ?? '';
+    $date_end = $get['date_end'] ?? '';
+
+    // Mendefinisikan kolom yang akan diambil
+    $fields = [
+        'id' => "o.id",
+        'order_date' => "date_format(dh.datetime,'%d-%b-%Y')",
+        'order_no' => "dh.code_delivery",
+        'qty' => "o.plan_qty",
+        'qty_delivered' => "o.delivery_qty",
+        'status' => "dstatus.name",
+    ];
+
+    // Menambahkan join dengan tabel lain
+    $join = [
+        'LEFT' => [
+            'mm_data_material as m' => 'o.material_id = m.id',
+            'mm_data_delivery_header as dh' => 'o.header_id = dh.id',
+        ]
+    ];
+
+    // Menambahkan kondisi where berdasarkan tanggal
+    $where = [];
+    if ($date_start != '') {
+        $date_obj = DateTime::createFromFormat($this->format_date_application, $date_start);
+        if ($date_obj) {
+            $date_iso = $date_obj->format('Y-m-d');
+            $where[] = ['dh.datetime >=' => $date_iso];
+        }
+    }
+    if ($date_end != '') {
+        $date_obj = DateTime::createFromFormat($this->format_date_application, $date_end);
+        if ($date_obj) {
+            $date_iso = $date_obj->format('Y-m-d');
+            $where[] = ['dh.datetime <=' => $date_iso];
+        }
+    }
+
+    // Mempersiapkan query dengan memanggil fungsi prepare_db()
+    $db = $md->prepare_db([
+        'select' => $fields,
+        'from' => 'mm_data_delivery_order as o',
+        'join' => $join,
+        'where' => $where,
+        'filter' => [
+            'data' => $get,
+            'having' => ['order_date'],
+            'numeric' => ['qty', 'qty_delivered']
+        ]
+    ]);
+
+    // Menambahkan limit ke query
+    $db->limit($limit_no);
+
+    // Mengembalikan hasil query
+    return $md->return_rows($db);
+}
+```
+
+**Penjelasan:**
+
+- Select: Daftar kolom yang diambil, seperti id, order_date, dan qty.
+- Join: Menggabungkan beberapa tabel menggunakan LEFT JOIN, seperti mm_data_material dan mm_data_delivery_header.
+- Where: Kondisi yang ditentukan berdasarkan tanggal mulai dan tanggal akhir.
+- Filter: Filter tambahan untuk data numerik (qty, qty_delivered) dan kondisi HAVING.
+- Limit: Membatasi jumlah hasil yang diambil sesuai dengan parameter yang diberikan.
+
+### Contoh 2
+
+Berikut adalah cara mendapatkan hasil Stock terkini dengan menggunakan prepare_db() dan mendapatkkan kesluruhan total stock menggunakan **SUM** dalam fungsi get_current_stock():
+
+```php copy
+public function get_current_stock($material_id)
+{
+    $md = $this->M_database;
+
+    // Definisikan parameter untuk prepare_db
+    $select = ['IFNULL(SUM(s.qty), 0) as stock_qty'];
+    $from = 'mm_data_stock as s';
+    $join = [
+        'INNER' => [
+            'mm_master_location as l' => 'l.id = s.location_id'
+        ]
+    ];
+    $where = [
+        ['s.material_id' => $material_id],
+        ['l.type_id' => 4]
+    ];
+
+    // Bangun query menggunakan prepare_db
+    $db = $md->prepare_db([
+        'select' => $select,
+        'from' => $from,
+        'join' => $join,
+        'where' => $where
+    ]);
+
+    // Jalankan query dan kembalikan hasil
+    $query = $db->get();
+    return $query->row_array();
+}
+```
+
+**Penjelasan:**
+
+- Select: Kita memilih kolom yang berisi SUM(s.qty) untuk menghitung total kuantitas stok, dengan menggunakan IFNULL untuk memastikan jika tidak ada nilai, 0 akan dikembalikan.
+- From: Mengambil data dari tabel mm_data_stock dengan alias s.
+- Join: Melakukan INNER JOIN pada tabel mm_master_location untuk memastikan kita hanya mengambil data dengan location_id yang sesuai.
+- Where: Menambahkan kondisi WHERE untuk mencocokkan material_id dan memastikan type_id adalah 4.
+
+### Kesimpulan
+
+Kesimpulan
+Fungsi **prepare_db()** adalah solusi fleksibel untuk membangun query SQL yang kompleks berdasarkan parameter dinamis. Fungsi ini memudahkan pembuatan query tanpa perlu menulis kode SQL secara manual untuk setiap situasi, sehingga membuat pengambilan data lebih mudah dan terstruktur.
