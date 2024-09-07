@@ -10,5 +10,11 @@
       "dev-db_update": {"title": "Update Database"}
     }] 
   },
+  "m_database" : {
+    "title": "M Database",
+    "children": [{ 
+      "get_value": {"title": "Get Value"}
+    }] 
+  },
   "about" : "About"
 }

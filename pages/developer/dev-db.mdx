@@ -11,25 +11,25 @@
 
 - ssh to 10.10.10.6 (dev db) or 10.10.10.8 (prod db)
   > dev
-  ```bash
+  ```bash copy
   ssh senopati@10.10.10.6
   ```
   > prod
-  ```bash
+  ```bash copy
   ssh senopati@10.10.10.8
   ```
 - run
 
   > dev: ~/bin/backup_db_dev_senar.sh
 
-  ```bash
+  ```bash copy
   cd ~/bin
   ./backup_db_dev_senar.sh
   ```
 
   > prod: ~/bin/backup_mysql_cc.sh
 
-  ```bash
+  ```bash copy
   cd ~/bin
   ./backup_mysql_cc.sh
   ```
@@ -127,4 +127,5 @@
 - select cc_app db
 - import database from sql file
 > From heidi -> Load SQL File -> Select dev_senar_db.xxxx-xx-xx.xx-xx-xx.sql -> Yes -> Run File(s) d
+
   

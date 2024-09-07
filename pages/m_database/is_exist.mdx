@@ -1,0 +1,35 @@
+# Is Exist
+
+## Penggunaan is_exist() di Aplikasi:
+
+Fungsi is_exist() digunakan untuk memeriksa apakah sebuah nilai ($value) ada dalam sebuah kolom ($field) di tabel ($table) yang ditentukan. Fungsi ini akan mengembalikan nilai true jika nilai tersebut ada di dalam database, dan false jika tidak ditemukan.
+
+```php copy
+$md = $this->M_database;
+$exists = $md->is_exist('value', 'field_name', 'table_name');
+
+if ($exists) {
+    echo "Nilai ditemukan di dalam database.";
+} else {
+    echo "Nilai tidak ditemukan di dalam database.";
+}
+```
+
+- **value**: Nilai yang ingin Anda periksa apakah ada di dalam kolom.
+- **field_name**: Nama kolom di mana nilai tersebut akan diperiksa.
+- **table_name**: Nama tabel di mana pencarian akan dilakukan.
+
+### Contoh Penggunaan
+
+Misalkan Anda ingin memeriksa apakah product_id dengan nilai 123 ada di tabel products:
+
+```php copy
+$md = $this->M_database;
+$isProductExist = $md->is_exist(123, 'product_id', 'products');
+
+if ($isProductExist) {
+    echo "Produk dengan ID 123 ditemukan.";
+} else {
+    echo "Produk dengan ID 123 tidak ditemukan.";
+}
+```
