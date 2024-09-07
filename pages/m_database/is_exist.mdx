@@ -2,34 +2,47 @@
 
 ## Penggunaan is_exist() di Aplikasi:
 
-Fungsi is_exist() digunakan untuk memeriksa apakah sebuah nilai ($value) ada dalam sebuah kolom ($field) di tabel ($table) yang ditentukan. Fungsi ini akan mengembalikan nilai true jika nilai tersebut ada di dalam database, dan false jika tidak ditemukan.
+Fungsi is_exist() digunakan untuk memeriksa apakah sebuah nilai tertentu ada di dalam sebuah kolom di tabel database. Fungsi ini akan mengembalikan true jika nilai tersebut ditemukan di tabel, dan false jika tidak ditemukan.
 
-```php copy
-$md = $this->M_database;
-$exists = $md->is_exist('value', 'field_name', 'table_name');
+```php
+public function is_exist($value, $field, $table)
+{
+    $db = $this->db;
 
-if ($exists) {
-    echo "Nilai ditemukan di dalam database.";
-} else {
-    echo "Nilai tidak ditemukan di dalam database.";
+    // Membuat query untuk memeriksa apakah nilai ada di kolom
+    $db->select($field)->from($table)->where($field, $value);
+
+    // Memeriksa apakah nilai ditemukan menggunakan return_value
+    $r = $this->return_value($db, $field);
+
+    // Jika nilai ditemukan, kembalikan true
+    if ($r !== false) {
+        return true;
+    }
+
+    // Jika nilai tidak ditemukan, kembalikan false
+    return false;
 }
 ```
 
-- **value**: Nilai yang ingin Anda periksa apakah ada di dalam kolom.
-- **field_name**: Nama kolom di mana nilai tersebut akan diperiksa.
-- **table_name**: Nama tabel di mana pencarian akan dilakukan.
+- **$value**: Nilai yang dicari dalam kolom.
+- **$field**: Kolom tempat pencarian nilai dilakukan.
+- **$table**: Tabel tempat pencarian nilai dilakukan.
+- Fungsi ini menggunakan **return_value()** untuk mengambil nilai dari hasil query. Jika nilai ditemukan, fungsi mengembalikan true. Jika tidak ditemukan, fungsi mengembalikan false.
 
 ### Contoh Penggunaan
 
-Misalkan Anda ingin memeriksa apakah product_id dengan nilai 123 ada di tabel products:
+**Contoh: Memeriksa Keberadaan Pengguna Berdasarkan Email**
 
 ```php copy
 $md = $this->M_database;
-$isProductExist = $md->is_exist(123, 'product_id', 'products');
+$userExists = $md->is_exist('user@example.com', 'email', 'users');
 
-if ($isProductExist) {
-    echo "Produk dengan ID 123 ditemukan.";
+if ($userExists) {
+    echo "Pengguna ditemukan.";
 } else {
-    echo "Produk dengan ID 123 tidak ditemukan.";
+    echo "Pengguna tidak ditemukan.";
 }
 ```
+
+Fungsi **is_exist()** sangat berguna untuk melakukan pengecekan cepat terhadap keberadaan nilai di dalam database tanpa perlu mengambil semua data terkait, sehingga efisien dalam hal performa dan penggunaan sumber daya.
