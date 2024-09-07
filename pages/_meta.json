@@ -13,7 +13,9 @@
   "m_database" : {
     "title": "M Database",
     "children": [{ 
-      "get_value": {"title": "Get Value"}
+      "is_exist": {"title": "Is Exist"},
+      "get_value": {"title": "Get Value"},
+      "get_row": {"title": "Get Row & Rows"}
     }] 
   },
   "about" : "About"

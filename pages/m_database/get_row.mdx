@@ -1,0 +1,109 @@
+# Get Row & Rows
+
+## Penggunaan get_row() di Aplikasi:
+
+Fungsi get_row() digunakan untuk mengambil satu baris data dari sebuah tabel berdasarkan kondisi tertentu. Fungsi ini akan mengembalikan baris pertama yang ditemukan, atau nilai default jika tidak ada baris yang cocok.
+
+```php
+public function get_row($fields, $table, $arg1, $arg2 = false, $arg3 = false)
+{
+    $db = $this->db;
+
+    $single = is_array($arg1) ? false : true;
+    $value_if_error = $single ? $arg3 : $arg2;
+
+    $db->select($fields)->from($table);
+
+    if ($single) {
+        $db->where($arg1, $arg2);
+    } else {
+        $db->where($arg1);
+    }
+
+    return $this->return_first_row($db, [], $value_if_error);
+}
+```
+
+- **$fields**: Kolom-kolom yang akan diambil.
+- **$table**: Nama tabel.
+- **$arg1** dan **$arg2**: Digunakan untuk menetapkan kondisi WHERE.
+- Fungsi **return_first_row()** mengembalikan baris pertama dari hasil query.
+
+### Contoh Penggunaan
+
+```php copy
+$md = $this->M_database;
+$row = $md->get_row('name, price', 'products', 'product_id', 123);
+
+if ($row) {
+    echo "Nama produk: " . $row['name'];
+    echo "Harga produk: " . $row['price'];
+} else {
+    echo "Produk tidak ditemukan.";
+}
+```
+
+**Penjelasan:**
+
+- Pada contoh di atas, **get_row()** mengambil kolom **name** dan **price** dari tabel **products** untuk produk dengan **product_id = 123**.
+- Jika produk ditemukan, baris pertama data dikembalikan, dan nilai kolom **name** serta **price** ditampilkan.
+- Jika tidak ada data yang cocok, fungsi mengembalikan nilai default (false secara default) dan pesan "Produk tidak ditemukan" ditampilkan.
+
+## Penggunaan get_rows() di Aplikasi:
+
+Fungsi get_rows() digunakan untuk mengambil beberapa baris data dari sebuah tabel berdasarkan kondisi tertentu, dengan opsi untuk membatasi jumlah baris yang diambil. Fungsi ini mengembalikan array yang berisi semua baris yang ditemukan.
+
+```php
+public function get_rows($fields, $table, $arg1, $arg2 = false, $arg3 = false)
+{
+    $db = $this->db;
+
+    $single = is_array($arg1) ? false : true;
+    $limit = $single ? $arg3 : $arg2;
+
+    $db->select($fields)->from($table);
+
+    if ($single) {
+        $db->where($arg1, $arg2);
+    } else {
+        $db->where($arg1);
+    }
+
+    if ($limit) {
+        $db->limit($limit);
+    }
+
+    return $this->return_rows($db);
+}
+
+```
+
+- **$fields**: Kolom-kolom yang akan diambil.
+- **$table**: Nama tabel.
+- **$arg1** dan **$arg2**: Digunakan untuk menetapkan kondisi WHERE.
+- **$limit**: Menetapkan jumlah maksimal baris yang akan diambil.
+- Fungsi **return_rows()** mengembalikan semua baris hasil query.
+
+### Contoh Penggunaan
+
+```php copy
+$md = $this->M_database;
+$rows = $md->get_rows('name, price', 'products', 'category', 'electronics', 5);
+
+if ($rows) {
+    foreach ($rows as $row) {
+        echo "Nama produk: " . $row['name'] . "<br>";
+        echo "Harga produk: " . $row['price'] . "<br><br>";
+    }
+} else {
+    echo "Tidak ada produk yang ditemukan.";
+}
+
+```
+
+**Penjelasan:**
+
+- Pada contoh di atas, **get_rows()** mengambil kolom **name** dan **price** dari tabel **products** untuk produk yang termasuk dalam kategori **electronics**.
+- Fungsi ini membatasi jumlah hasil maksimal sebanyak 5 baris.
+- Jika ada data yang cocok, semua baris yang ditemukan akan dicetak.
+- Jika tidak ada data yang cocok, fungsi mengembalikan nilai default (false secara default) dan pesan "Tidak ada produk yang ditemukan" ditampilkan

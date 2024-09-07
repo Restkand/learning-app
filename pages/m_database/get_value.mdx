@@ -2,30 +2,110 @@
 
 ## Penggunaan get_value() di Aplikasi
 
-Dalam file aplikasi, Anda dapat menggunakan metode get_value() yang diakses melalui instance dari model database (M_database):
+Fungsi get_value() digunakan untuk mengambil satu nilai dari kolom tertentu dalam sebuah tabel database berdasarkan kondisi tertentu. Jika tidak ada hasil yang ditemukan, fungsi ini akan mengembalikan nilai default yang dapat ditentukan oleh pengguna.
 
-```php copy
-$md = $this->M_database;
-$value = $md->get_value('field_name', 'table_name', 'column_name', 'value');
+Fungsi ini memanggil fungsi internal get_value_or_sum(), yang bertanggung jawab untuk menjalankan query, baik untuk mengambil nilai tunggal (select) atau untuk menghitung jumlah nilai (select_sum).
+
+**Fungsi get_value()**
+
+```php
+public function get_value($field, $table, $arg1, $arg2 = false, $arg3 = false)
+{
+    return $this->get_value_or_sum($field, $table, $arg1, $arg2, $arg3, false);
+}
 ```
 
-- **field_name**: Nama field (kolom) yang ingin Anda ambil nilainya.
-- **table_name**: Nama tabel dari mana data akan diambil.
-- **column_name**: Kolom yang akan digunakan sebagai syarat (misalnya, `id` atau `username`).
-- **value**: Nilai dari kolom yang digunakan sebagai syarat.
+- **$field**: Kolom yang ingin Anda ambil nilainya.
+- **$table**: Nama tabel dari mana data diambil.
+- **$arg1** dan **$arg2**: Digunakan untuk menetapkan kondisi WHERE.
+- **$arg3**: Nilai default jika tidak ada hasil yang ditemukan.
+- false pada parameter terakhir menunjukkan bahwa ini bukan query untuk menghitung jumlah nilai **(select_sum)**, melainkan hanya untuk mengambil nilai tunggal **(select)**.
+
+**Fungsi get_value_or_sum()**
+
+```php
+private function get_value_or_sum($field, $table, $arg1, $arg2 = false, $arg3 = 0, $sum = false)
+{
+    $db = $this->db;
+
+    // Menentukan apakah arg1 adalah array (untuk beberapa kondisi WHERE)
+    $single = is_array($arg1) ? false : true;
+    $value_if_error = $single ? $arg3 : $arg2;
+
+    // Memilih field atau sum berdasarkan parameter $sum
+    if (!$sum) {
+        $db->select($field);
+    } else {
+        $db->select_sum($field);
+    }
+
+    // Menentukan tabel
+    $db->from($table);
+
+    // Menambahkan kondisi WHERE
+    if ($single) {
+        $db->where($arg1, $arg2);
+    } else {
+        $db->where($arg1);
+    }
+
+    // Menjalankan query dan menangani hasil
+    $q = $db->get();
+    $n = $q ? $q->num_rows() : 0;
+
+    // Jika tidak ada hasil, kembalikan nilai default
+    if ($n === 0) {
+        return $value_if_error;
+    }
+
+    // Kembalikan nilai dari kolom yang diminta
+    $r = $q->row_array();
+    return $r[$field] ?? $value_if_error;
+}
+```
+
+**Penjelasan Detail:**
+
+- **$single**: Digunakan untuk memeriksa apakah kondisi WHERE berisi satu kondisi (non-array) atau beberapa kondisi (array).
+- **$value_if_error**: Nilai default yang dikembalikan jika tidak ada hasil yang ditemukan.
+- **$sum**: Jika true, fungsi akan menggunakan select_sum() untuk menghitung jumlah dari kolom. Jika false, fungsi hanya akan menggunakan select() untuk mengambil satu nilai dari kolom.
+- **$q**: Hasil query. Jika tidak ada hasil, nilai default dikembalikan.
 
 ### Contoh Penggunaan
 
-Misalkan Anda ingin mendapatkan nilai dari field **price** di tabel **products** berdasarkan **product_id**:
+**Contoh 1: Mengambil Harga Produk**
 
 ```php copy
+$md = $this->M_database;
 $price = $md->get_value('price', 'products', 'product_id', 123);
-echo $price; // Output: nilai price dari produk dengan ID 123
 
+if ($price !== false) {
+    echo "Harga produk adalah: " . $price;
+} else {
+    echo "Produk tidak ditemukan.";
+}
 ```
 
-### Kesimpulan
+**Contoh 2: Mengambil Nama Pengguna Berdasarkan Email**
 
-Metode get_value() menyediakan cara yang cepat dan efisien untuk mengambil satu nilai dari tabel dalam database dengan kriteria tertentu. Ini fleksibel karena dapat digunakan dengan berbagai jenis kolom dan tabel, dan menangani kasus di mana tidak ada hasil dengan mengembalikan nilai default.
+```php copy
+$md = $this->M_database;
+$username = $md->get_value('username', 'users', 'email', 'user@example.com');
 
-Jika Anda ingin mengambil nilai dengan syarat tertentu, cukup panggil fungsi ini di aplikasi Anda dan sesuaikan dengan kebutuhan spesifik.
+if ($username !== false) {
+    echo "Nama pengguna adalah: " . $username;
+} else {
+    echo "Pengguna tidak ditemukan.";
+}
+```
+
+**Contoh 3: Menggunakan Nilai Default Jika Tidak Ada Data**
+
+```php copy
+$md = $this->M_database;
+$stock = $md->get_value('stock', 'inventory', 'product_id', 999, 0); // Nilai default adalah 0
+
+echo "Stok produk: " . $stock;
+```
+
+Dengan fungsi **get_value()**, Anda dapat dengan mudah mengambil nilai dari kolom tertentu dalam tabel, baik untuk kasus pengambilan nilai tunggal maupun ketika diperlukan nilai default jika tidak ada data yang sesuai dengan kondisi.
