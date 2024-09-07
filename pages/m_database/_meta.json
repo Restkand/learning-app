@@ -1,5 +1,6 @@
 {
   "is_exist": "Is Exist",
   "get_value": "Get Value",
-  "get_row": "Get Row & Rows"
+  "get_row": "Get Row & Rows",
+  "get_datetime" : "Get Datetime"
 }

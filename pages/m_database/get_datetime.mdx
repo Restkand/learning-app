@@ -1,0 +1,55 @@
+# Get Datetime
+
+## Penggunaan datetime() di Aplikasi:
+
+Fungsi **datetime()** digunakan untuk memformat string tanggal atau waktu yang diberikan ke dalam format **Y-m-d H:i:s**. Fungsi ini berguna jika Anda menerima tanggal dalam berbagai format dan ingin mengonversinya ke format yang konsisten.
+
+```php
+public function datetime($datetime)
+{
+    return date("Y-m-d H:i:s", strtotime($datetime));
+}
+```
+
+- Fungsi ini memanfaatkan **strtotime()** untuk mengonversi string tanggal menjadi timestamp, dan kemudian memformatnya kembali menggunakan **date()**.
+
+## Penggunaan get_current_datetime() di Aplikasi:
+
+Fungsi **get_current_datetime()** digunakan untuk mendapatkan tanggal dan waktu saat ini dalam format **Y-m-d H:i:s** (tahun-bulan-hari jam:menit), yang merupakan format umum untuk penyimpanan di database.
+
+```php
+public function get_current_datetime()
+{
+    return date("Y-m-d H:i:s");
+}
+```
+
+## Contoh Penggunaan
+
+**Contoh 1: Memformat Tanggal dari Input Pengguna**
+
+```php copy
+$md = $this->M_database;
+$formatted = $md->datetime('7th September 2024, 2:35 PM');
+
+echo "Tanggal terformat: " . $formatted;
+```
+
+Outputnya akan menjadi: 2024-09-07 14:35:00.
+
+**Contoh 2: Mendapatkan Tanggal dan Waktu Saat Ini**
+
+```php copy
+$md = $this->M_database;
+echo "Waktu sekarang adalah: " . $md->get_current_datetime();
+
+```
+
+Outputnya akan menampilkan waktu saat ini, misalnya: 2024-09-07 14:35:22.
+
+**Kesimpulan**
+
+- **get_current_datetime()** digunakan untuk mendapatkan tanggal dan waktu saat ini dalam format standar.
+- **datetime()** digunakan untuk memformat string tanggal menjadi format yang konsisten, memudahkan penyimpanan dan pemrosesan lebih lanjut.
+
+Kedua fungsi ini sangat berguna dalam menjaga konsistensi penyimpanan dan penggunaan format tanggal di aplikasi Anda.
