@@ -1,0 +1,104 @@
+# Create Include Modal
+
+## Membuat dan Menggunakan Include Modal
+
+Modal dalam Y Form dapat digunakan untuk mempermudah interaksi pengguna dengan sistem, seperti menampilkan form atau menampilkan data yang diambil dari server. Dalam panduan ini, Anda akan belajar bagaimana cara membuat Include Modal dari Module Master.
+
+### Membuat Daftar Modal
+
+Langkah pertama dalam membuat modal adalah mendefinisikan daftar modal yang ingin digunakan, lalu memasukkannya ke dalam array **include**. Modal yang didefinisikan di sini adalah nama file modal yang akan disertakan ke dalam aplikasi.
+
+```js copy
+const modal = [
+  "modal_params_tokopart", // Nama file modal pertama
+  "modal_output_tokopart", // Nama file modal kedua
+];
+
+const include = [];
+for (const m of modal) {
+  include.push(`ap_${m}.js`); // Menambahkan setiap modal ke array include
+}
+
+const param = {
+  module: "ap_rest_log_tokopart", // Nama modul
+  type: "m",
+  label: {
+    master: "Integration Log", // Label untuk modul master
+  },
+  include: include, // Daftar file modal yang disertakan
+};
+```
+
+### Menambahkan Event Listener untuk Modal
+
+Pada tahap ini, Anda menambahkan event listener ke dalam fungsi #handleAction() yang mengatur semua event listener di dalam module.
+
+```js copy
+#handleAction() {
+    $('#input_limit').val(100);  // Set input limit default
+
+    this.listenerSetButtonDownloadUpload({
+        table: 'table_data',
+        fileType: 'xlsx',
+        fileName: 'delivery'
+    });
+
+    this.setRequery('table_data');
+    this.listenerFilterTable({ table: 'table_data' });
+    this.listenerContextMenuTable('table_data');
+    this.listenerStickyTable('table_data');
+
+    this.#listenerQueryTable();  // Listener untuk query tabel
+    this.#flattenView();  // Memperbaiki tampilan view tabel
+
+    this.includeModal();  // Menambahkan modal yang disertakan
+    this.listenerModalParams();  // Listener untuk modal parameter
+    this.listenerModalOutput();  // Listener untuk modal output
+
+    $('#input_limit').on('keypress', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();  // Mencegah form submit otomatis
+            e.stopPropagation();
+        }
+    });
+}
+```
+
+- **this.includeModal()**: Fungsi yang memanggil modal yang sudah disertakan pada tahap pertama.
+- **this.listenerModalOutput()**: Listener yang menangani event ketika modal output diklik.
+
+### Membuat Fungsi includeModal()
+
+Fungsi includeModal() digunakan untuk menginisialisasi semua modal yang telah didefinisikan dalam param.include. Setiap modal perlu dipanggil dengan parameter parent yang menghubungkannya dengan modul master.
+
+```js copy
+includeModal() {
+    new modalParamsTokopart({ parent: this });  // Inisialisasi modal parameter
+    new modalOutputTokopart({ parent: this });  // Inisialisasi modal output
+}
+```
+
+### Membuat Event Listener untuk Modal Output
+
+Pada tahap ini, Anda menambahkan event listener untuk membuka modal ketika elemen tertentu diklik. Dalam contoh ini, modal akan terbuka ketika elemen dengan class results di dalam tabel diklik.
+
+```js copy
+listenerModalOutput() {
+    $('body').off('click', '.results');  // Hapus event listener sebelumnya
+    $('body').on('click', '.results', (e) => {  // Tambahkan event listener baru
+        const obj = e.currentTarget;
+        const params = $(obj).text();  // Ambil teks dari elemen yang diklik
+        const closestTr = $(obj).closest('tr');
+        const rowId = closestTr.find('.td-input-hidden-table_data-id input').val();  // Ambil ID dari baris terdekat
+        this.resultId = rowId;  // Set resultId dengan ID yang didapat
+
+        $('#button-modal_output_tokopart')[0].click();  // Trigger untuk membuka modal output
+    });
+}
+```
+
+- **$('.results').on('click')**: Event listener yang dipicu ketika elemen dengan class **.results** diklik.
+- **this.resultId = rowId**: Menyimpan ID hasil dari baris tabel yang diklik.
+- **$('#button-modal_output_tokopart')[0].click()**: Menjalankan klik otomatis pada elemen modal untuk membukanya.
+
+**Catatan Penting**: Pada event listener **$('#button-modal_output_tokopart').click()**, pastikan Anda menggunakan format **#button-(Nama Group Modal)** yang sesuai dengan nama modal yang telah Anda buat pada file modal tersebut.
