@@ -1,0 +1,132 @@
+# Simple Modal
+
+## Cara Membuat Modal Sederhana
+
+Semua proses ini terjadi di dalam file **ap_modal_output_tokopart.js** dan berada di dalam folder **public/js/include**
+
+### Membuat Class Modal
+
+Langkah pertama adalah mendefinisikan class modal dengan constructor yang mengambil parameter dinamis untuk mengatur modal. Berikut adalah contoh pembuatan class modalOutputTokopart.
+
+```js copy
+class modalOutputTokopart {
+  constructor(param) {
+    useParam(this, param); // Menginisialisasi parameter yang dikirimkan
+    this.field = {}; // Inisialisasi field modal
+    this.group = "modal_output_tokopart"; // Nama grup modal
+    this.title = "Parameter Input"; // Judul modal
+
+    // Definisi field yang ditampilkan dalam modal
+    this.modalField = [
+      {
+        name: "results",
+        label: "Results",
+        row: 11,
+        labelInfo: true,
+        col: "s2 m2 l9",
+      },
+    ];
+
+    this.packingId = null; // Menyimpan ID packing
+    this.#modal(); // Memanggil fungsi untuk menampilkan modal
+  }
+}
+```
+
+Setiap modal di Y Form memiliki struktur yang didefinisikan oleh beberapa elemen dasar seperti:
+
+- **Group**: Nama grup yang menentukan jenis modal.
+- **Title**: Judul modal yang ditampilkan di header.
+- **Field**: Daftar field yang ada dalam modal (input text, select box, dll).
+- **Event Listener**: Fungsi yang dipicu saat modal dibuka atau ditutup.
+
+### Menampilkan Modal
+
+Untuk menampilkan modal, Y form menyediakan method **createInputModal** yang secara otomatis menghasilkan elemen modal HTML berdasarkan parameter yang diberikan.
+
+```js copy
+#modal() {
+  const group = this.group;
+  const parent = this.parent;
+  const title = this.title;
+
+  // Membuat modal menggunakan createInputModal
+  parent.createInputModal({
+    group: group,      // Nama grup modal
+    title: title,      // Judul modal
+    field: this.modalField,  // Field yang akan ditampilkan dalam modal
+
+    // Fungsi yang dijalankan saat modal mulai dibuka
+    onOpenStart: () => {
+      $(`#submit-${group}`).hide();  // Menyembunyikan tombol submit
+      this.#loadStartData();         // Memuat data awal
+      this.#minorCss();              // Modifikasi kecil CSS
+    },
+    onOpenEnd: () => {},
+  });
+
+  // Menyembunyikan tombol form dan navigasi
+  $(`#button-${group}`).hide();
+  $(`#form-${group}`).children('nav').hide();
+}
+```
+
+### Memuat Data Awal dengan AJAX
+
+Modal di Y Framework dapat memuat data awal dari server menggunakan AJAX. Contohnya, dalam modalOutputTokopart, data hasil (results) diambil dari server dan dikonversi ke JSON untuk ditampilkan di modal.
+
+```js copy
+#loadStartData() {
+  const parent = this.parent;
+  this.resultId = parent.resultId;
+
+  // URL untuk mendapatkan data output dari server
+  const url = parent.queryUrl + 'get_output';
+  const param = `id=${this.resultId}`;
+
+  const callback = (res) => {
+    const output = res.results;
+
+    // Mengonversi serialized string menjadi JSON
+    const JsonOutput = this.serializedToJson(output);
+
+    // Menampilkan JSON dengan format yang rapi di modal & melatakannya di #label_info_results
+    yM.setTextValue("#label_info_results", JSON.stringify(JsonOutput, null, 2));
+  };
+
+  getAjax(url, param, callback);  // Mengirim permintaan AJAX
+}
+```
+
+### Mengonversi Data dari Server ke JSON
+
+Data yang diterima dari server dalam format serialized string perlu dikonversi menjadi JSON agar dapat ditampilkan dengan lebih rapi dan mudah dibaca.
+
+```js copy
+serializedToJson(data) {
+  try {
+    // Menghapus karakter escape seperti \n dan \t
+    const cleanedData = data.replace(/\\n/g, '').replace(/\\t/g, '').replace(/\\r/g, '');
+
+    // Mengonversi string menjadi objek JSON
+    const jsonData = JSON.parse(cleanedData);
+
+    return jsonData;  // Mengembalikan objek JSON
+  } catch (error) {
+    console.error("Error parsing JSON:", error);
+    return {};
+  }
+}
+```
+
+### Modifikasi Tampilan dengan CSS
+
+Untuk menyesuaikan tampilan modal, Anda dapat menerapkan modifikasi CSS langsung melalui jQuery atau CSS internal. Pada contoh ini, elemen #label_info_results dimodifikasi untuk menampilkan teks dengan font yang lebih tebal
+
+```js copy
+#minorCss(){
+  $('#label_info_results').css({
+    'font-weight': 'bold',  // Modifikasi font agar lebih tebal
+  });
+}
+```

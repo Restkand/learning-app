@@ -10,6 +10,13 @@
       "dev-db_update": {"title": "Update Database"}
     }] 
   },
+  "include" : {
+    "title": "Include Modal",
+    "children": [{ 
+      "add_modal": {"title": "Create Modal"},
+      "simple_modal": {"title": "Simple Modal"}
+    }] 
+  },
   "m_database" : {
     "title": "M Database",
     "children": [{ 
