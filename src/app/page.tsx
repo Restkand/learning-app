@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { Button } from "@/components/ui/button"
-
+import { Button } from "@/components/ui/button";
+import LogoutButton from "@/components/LogoutButton";
 
 export default function Home() {
   return (
@@ -19,6 +19,9 @@ export default function Home() {
         <Link href="/docs"> 
           <Button variant="default">Documentation</Button>
         </Link>
+      </div>
+      <div className="absolute top-0 left-0 m-4">
+        <LogoutButton /> {/* Tambahkan komponen Logout */}
       </div>
     </div>
   );
