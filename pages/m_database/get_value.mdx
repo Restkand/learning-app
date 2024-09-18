@@ -86,26 +86,34 @@ if ($price !== false) {
 }
 ```
 
-**Contoh 2: Mengambil Nama Pengguna Berdasarkan Email**
-
-```php copy
-$md = $this->M_database;
-$username = $md->get_value('username', 'users', 'email', 'user@example.com');
-
-if ($username !== false) {
-    echo "Nama pengguna adalah: " . $username;
-} else {
-    echo "Pengguna tidak ditemukan.";
-}
-```
-
-**Contoh 3: Menggunakan Nilai Default Jika Tidak Ada Data**
+**Contoh 2: Menggunakan Nilai Default Jika Tidak Ada Data**
 
 ```php copy
 $md = $this->M_database;
 $stock = $md->get_value('stock', 'inventory', 'product_id', 999, 0); // Nilai default adalah 0
 
 echo "Stok produk: " . $stock;
+```
+
+**Contoh 3: Mengambil Nilai Total atau Sum dari Receiving Qty yang memiliki haeder_id & material_id yang sama**
+
+```php copy
+$md = $this->M_database;
+
+$material_id = 123;  // Contoh material_id
+$header_id = 456;    // Contoh header_id
+
+// Memanggil fungsi get_sum untuk menjumlahkan kolom receiving_qty berdasarkan kondisi yang ditentukan
+$total_receiving_qty = $md->get_sum(
+    'receiving_qty',               // Kolom yang ingin dijumlahkan (SUM)
+    'mm_data_receiving',           // Nama tabel
+    ['material_id' => $material_id, 'header_id' => $header_id],  // Kondisi WHERE
+    0,                             // Nilai default untuk kondisi selain array (tidak diperlukan karena menggunakan array)
+    0                              // Nilai default jika hasilnya kosong (kembalikan 0 jika tidak ada hasil)
+);
+
+// Menampilkan total receiving_qty
+echo "Total receiving_qty: " . $total_receiving_qty;
 ```
 
 Dengan fungsi **get_value()**, Anda dapat dengan mudah mengambil nilai dari kolom tertentu dalam tabel, baik untuk kasus pengambilan nilai tunggal maupun ketika diperlukan nilai default jika tidak ada data yang sesuai dengan kondisi.
