@@ -20,7 +20,7 @@ export default NextAuth({
 
         if (!credentials || !credentials.name) {
           throw new Error('Username is required');
-        }        
+        }
 
         // Cari user berdasarkan kolom 'name'
         const user = await prisma.user.findFirst({
@@ -28,7 +28,8 @@ export default NextAuth({
         });
 
         if (user && credentials.password === user.password) {
-          return { id: user.id, name: user.name, email: user.email };
+          // Konversi id menjadi string
+          return { id: user.id.toString(), name: user.name, email: user.email };
         } else {
           throw new Error('Invalid credentials');
         }
