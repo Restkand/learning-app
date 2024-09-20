@@ -7,12 +7,15 @@ import Link from 'next/link';
 import LoginImgL from '../assets/img/login-office.jpeg';
 import LoginImgD from '../assets/img/login-office-dark.jpeg';
 import { Input } from "@/components/ui/input"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 
 
 export default function LoginPage() {
   const [name, setName] = useState(""); // Menggunakan 'name' bukan 'email'
   const [password, setPassword] = useState("");
   const router = useRouter();
+  const [showAlert, setShowAlert] = useState(false);
+
 
   useEffect(() => {
     // Set dark mode jika ada di local storage
@@ -34,13 +37,21 @@ export default function LoginPage() {
     if (res && res.ok) {
       router.push("/");
     } else {
-      alert("Login failed");
+      setShowAlert(true)
     }
   };
 
   return (
     <div className="flex items-center min-h-screen p-6 bg-gray-50 dark:bg-gray-950">
       <div className="flex-1 h-full max-w-4xl mx-auto overflow-hidden bg-white rounded-lg shadow-xl dark:bg-gray-900">
+      {showAlert && (
+        <Alert>
+          <AlertTitle>Login failed</AlertTitle>
+          <AlertDescription>
+            Please check your credentials and try again.
+          </AlertDescription>
+        </Alert>
+        )}
         <div className="flex flex-col overflow-y-auto md:flex-row">
           <div className="h-32 md:h-auto md:w-1/2">
           <Image
