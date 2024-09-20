@@ -14,21 +14,19 @@ export default NextAuth({
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
-        if (!credentials) {
-          throw new Error('No credentials provided');
-        }
-
         if (!credentials || !credentials.name) {
           throw new Error('Username is required');
-        }        
-
+        }
+      
         // Cari user berdasarkan kolom 'name'
         const user = await prisma.user.findFirst({
           where: { name: credentials.name as string },
         });
-
+      
+        // Verifikasi password
         if (user && credentials.password === user.password) {
-          return { id: user.id, name: user.name, email: user.email };
+          // Konversi id menjadi string
+          return { id: String(user.id), name: user.name, email: user.email };
         } else {
           throw new Error('Invalid credentials');
         }
