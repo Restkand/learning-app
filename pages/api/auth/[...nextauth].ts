@@ -18,6 +18,8 @@ export default NextAuth({
           throw new Error('No credentials provided');
         }
 
+        console.log('Credentials:', credentials);
+
         if (!credentials || !credentials.name) {
           throw new Error('Username is required');
         }
@@ -26,6 +28,8 @@ export default NextAuth({
         const user = await prisma.user.findFirst({
           where: { name: credentials.name as string },
         });
+
+        console.log('User found:', user);
 
         if (user && credentials.password === user.password) {
           // Konversi id menjadi string
