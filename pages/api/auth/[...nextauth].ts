@@ -18,7 +18,8 @@ export default NextAuth({
           throw new Error('No credentials provided');
         }
 
-        console.log('Credentials:', credentials);
+        console.log("Database URL:", process.env.DATABASE_URL);
+        
 
         if (!credentials || !credentials.name) {
           throw new Error('Username is required');
@@ -29,13 +30,16 @@ export default NextAuth({
           where: { name: credentials.name as string },
         });
 
-        console.log('User found:', user);
+        // console.log('Credentials:', credentials);
+        // console.log("User found:", user);
+        
+        // console.log('User found:', user);
 
         if (user && credentials.password === user.password) {
           // Konversi id menjadi string
           return { id: user.id.toString(), name: user.name, email: user.email };
         } else {
-          throw new Error('Invalid credentials');
+          throw new Error('Invalid credentials, User: ' + user);
         }
       },
     }),
