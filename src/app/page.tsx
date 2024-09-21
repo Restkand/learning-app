@@ -1,12 +1,12 @@
-import { useEffect } from 'react';
-import { useRouter } from 'next/router';
+export async function getServerSideProps() {
+  return {
+    redirect: {
+      destination: '/home',
+      permanent: false, // Gunakan false agar tidak menjadi redirect permanen
+    },
+  };
+}
 
-export default function IndexRedirect() {
-  const router = useRouter();
-
-  useEffect(() => {
-    router.push('/home');
-  }, [router]);
-
-  return null; // Tidak perlu render konten karena akan redirect
+export default function HomeRedirect() {
+  return null; // Karena akan langsung redirect, tidak perlu render konten di sini
 }
