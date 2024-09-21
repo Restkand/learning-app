@@ -35,7 +35,7 @@ export default function LoginPage() {
     // console.log(res);
 
     if (res && res.ok) {
-      router.push("/");
+      router.push("/home");
     } else {
       setShowAlert(true)
     }
