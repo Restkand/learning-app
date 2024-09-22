@@ -1,3 +1,97 @@
-# Hello Wolrd
+# Dokumentasi Web Learning App
 
-Welcome to Documentation World
+Selamat datang di dokumentasi **Learning App**. Proyek ini dibangun menggunakan beberapa teknologi modern yang mempermudah pengembangan aplikasi web, yaitu:
+
+- **Next.js**: Framework React untuk membangun aplikasi web yang cepat.
+- **Nextra**: Plugin yang memudahkan pembuatan dokumentasi statis di atas Next.js.
+- **PostgreSQL**: Basis data relasional yang digunakan dalam aplikasi ini.
+- **Prisma**: ORM (Object-Relational Mapping) yang memudahkan interaksi dengan database PostgreSQL.
+- **NextAuth.js**: Sistem otentikasi untuk aplikasi Next.js yang mendukung berbagai metode login.
+- **Docker**: Untuk pengelolaan PostgreSQL secara lokal.
+
+## Clone repositori GitHub
+
+Mulai dengan men-clone repository ini:
+
+```bash
+git clone https://github.com/Restkand/learning-app.git
+```
+
+lalu jangan lupa untuk masuk ke direktori yang baru saja di Clone
+
+```bash
+cd learning-app
+```
+
+## Membuat File .env
+
+Buat file .env di root proyek.
+Sesuaikan variabel environment, untuk contoh di bawah ini merupakan isi file penggunaan .env lokal menggunakan Docker:
+
+```bash
+# Untuk Docker
+DATABASE_URL="postgresql://username:password@localhost:5432/mydb"
+# Variabel lain yang diperlukan
+NODE_TLS_REJECT_UNAUTHORIZED="0"
+
+NEXTAUTH_SECRET=56595D7A9848536961LKS46F731KL23I!
+NEXTAUTH_URL=http://localhost:3000
+```
+
+Jika ingin menggunakan database dari Vercel, pastikan menyesuaikan .env dengan detail dari Vercel dengan mengkontak langsung @Restkand.
+
+### Menggunakan Docker (Opsional)
+
+Jika menggunakan PostgreSQL secara lokal, pastikan Docker sudah terpasang. Jalankan perintah berikut untuk memulai PostgreSQL lokal dengan Docker:
+
+```bash
+docker-compose -f docker-compose.db.yaml up -d
+```
+
+Ini akan memulai PostgreSQL pada port 5432 dengan username postgres dan password password. Anda bisa mengubahnya sesuai kebutuhan di file docker-compose.db.yaml.
+
+## Menjalankan Prisma
+
+Setelah koneksi database disiapkan, jalankan perintah berikut untuk membuat skema database dengan Prisma:
+
+```bash
+npx prisma generate
+npx prisma migrate dev --name init
+```
+
+## Jalankan aplikasi secara lokal:
+
+Set up terakhir yaitu melakukan npm install
+
+```bash
+npm install
+```
+
+dan setiap kalil ingin menjalankan aplikasi ini secara lokal, hanya tinggal lakukan seperti di bawah ini di terminal
+
+```bash
+npm run dev
+```
+
+## Kontribusi untuk Dokumentasi
+
+Saya sangat menyambut kontribusi untuk pengembangan dokumentasi ini. Jika Anda ingin menambahkan atau memperbarui dokumentasi, silakan ikuti langkah-langkah berikut:
+
+- **Fork repositori ini di GitHub.**
+- **Buat branch baru dengan deskripsi perubahan yang ingin Anda buat.**
+
+```bash
+git checkout -b (isi-nama-kalian)
+```
+
+- **Tambahkan atau perbaiki konten di direktori pages/.**
+- **Commit perubahan Anda:**
+
+```bash
+git commit -m "Menambahkan dokumentasi baru"
+```
+
+- **Push ke repositori GitHub Anda dan buat Pull Request.**
+
+Terima kasih telah menggunakan aplikasi ini! Jika ada pertanyaan, jangan ragu untuk menghubungi @Restkand.
+Happy coding!
