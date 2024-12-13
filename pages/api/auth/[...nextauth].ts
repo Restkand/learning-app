@@ -18,28 +18,19 @@ export default NextAuth({
           throw new Error('No credentials provided');
         }
 
-        console.log("Database URL:", process.env.DATABASE_URL);
-        
-
-        if (!credentials || !credentials.name) {
+        if (!credentials.name) {
           throw new Error('Username is required');
         }
 
         // Cari user berdasarkan kolom 'name'
         const user = await prisma.user.findFirst({
-          where: { name: credentials.name as string },
+          where: { name: credentials.name },
         });
 
-        // console.log('Credentials:', credentials);
-        // console.log("User found:", user);
-        
-        // console.log('User found:', user);
-
         if (user && credentials.password === user.password) {
-          // Konversi id menjadi string
           return { id: user.id.toString(), name: user.name, email: user.email };
         } else {
-          throw new Error('Invalid credentials, User: ' + user);
+          throw new Error('Invalid credentials');
         }
       },
     }),
@@ -49,4 +40,23 @@ export default NextAuth({
     error: '/auth/error',
   },
   secret: process.env.NEXTAUTH_SECRET,
+  
+  callbacks: {
+    async jwt({ token, user }) {
+      // Jika user ada, tambahkan info user ke dalam token
+      if (user) {
+        token.name = user.name;
+        token.email = user.email;
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      // Ambil informasi dari token dan tambahkan ke session
+      if (session.user) {
+        session.user.name = token.name
+        session.user.email = token.email
+      }
+      return session;
+    },
+  },
 });
