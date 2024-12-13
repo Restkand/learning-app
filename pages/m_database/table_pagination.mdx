@@ -1,0 +1,170 @@
+# Table Pagination
+
+## Pengenalan
+
+Pagination digunakan untuk menampilkan data dalam jumlah besar secara bertahap pada tabel dengan menggunakan query yang diatur sesuai dengan parameter tertentu. Dalam implementasi ini, pagination dicapai dengan memanfaatkan fungsi **get_table()** yang bekerja secara berjenjang dengan fungsi lain seperti **result_rows()** dan **prepare_db()**.
+
+Fungsi ini memungkinkan Anda untuk memfilter, mengurutkan, dan mengelompokkan data dari database dengan parameter yang dapat disesuaikan.
+
+## **Fungsi get_table()**
+
+Fungsi get_table() adalah pintu masuk untuk menjalankan pagination. Fungsi ini mengembalikan hasil dari fungsi result_rows() dengan parameter konfigurasi.
+
+```php
+public function get_table($param)
+{
+    return $this->result_rows($param);
+}
+```
+
+- **$param:**: Array konfigurasi yang berisi semua informasi yang diperlukan untuk membangun query SQL (select, from, join, where, order_by, dll.).
+
+### Parameter dalam Pagination
+
+Berikut adalah parameter yang biasanya digunakan dalam pagination:
+
+- **Select**: Kolom yang akan diambil.
+- **From**: Nama tabel utama.
+- **Join**: Array yang berisi tabel relasi dan kondisi join.
+- **Where**: Kondisi untuk memfilter data.
+- **Group_by**: Kolom yang digunakan untuk pengelompokan data.
+- **Order_by**: Kolom untuk mengurutkan data (ASC/DESC).
+- **Filter**: Filter tambahan untuk kondisi khusus (misalnya berdasarkan nilai numeric atau text).
+- **Limit**: Jumlah data yang akan diambil per halaman.
+- **Offset**: Posisi data awal untuk pagination.
+
+## **Fungsi result_rows()**
+
+Fungsi ini mempersiapkan query SQL berdasarkan parameter yang diberikan dan mengembalikan hasilnya. Fungsi ini juga menangani pengaturan filter untuk pagination.
+
+```php
+public function result_rows($param)
+{
+    $db = $this->prepare_db($param);
+    $filter = $param['filter'] ?? [];
+    $get = $filter['data'] ?? [];
+    if ($get == []) {
+        $get = $param['get'] ?? [];
+    }
+    return $this->return_rows($db, $get, false);
+}
+```
+
+## **Fungsi prepare_db()**
+
+Fungsi inti untuk membangun query SQL berdasarkan parameter konfigurasi yang diberikan. Fungsi ini menangani semua bagian query seperti SELECT, JOIN, WHERE, ORDER BY, dan sebagainya.
+
+```php
+public function prepare_db($param)
+{
+    $db = $this->db;
+
+    $select = $param['select'] ?? [];
+    $from = $param['from'] ?? '';
+    $join = $param['join'] ?? [];
+    $where = $param['where'] ?? [];
+    $group_by = $param['group_by'] ?? [];
+    $order_by = $param['order_by'] ?? [];
+    $filter = $param['filter'] ?? [];
+    $get = $filter['data'] ?? [];
+    $filter_having = $filter['having'] ?? [];
+    $filter_numeric = $filter['numeric'] ?? [];
+
+    $this->select($db, $select);
+    $db->from($from);
+    $this->join($db, $join);
+    $this->where($db, $where);
+    $this->filter($db, $select, $get, $filter_having, $filter_numeric);
+    $this->group_by($db, $group_by);
+    $this->order_by($db, $order_by);
+
+    return $db;
+}
+```
+
+### Contoh Penggunaan
+
+**Contoh 1: Get Detail**
+
+```php copy
+public function get_detail($get, $as_table = true)
+{
+  $db = $this->db;
+  $md = $this->M_database;
+
+  $get['page'] =  2; // Mengatur memulai dari halaman berapa
+  $get['limit'] = 40; // mengatur satu halaman ada berapa data
+
+  $fields = [
+    'id' => "h.id",
+    'header_id' => "r.header_id",
+    'material_id' => "IFNULL(r.material_id, 0)",
+    'date' => "DATE_FORMAT(h.date, '%d-%b-%Y')",
+    'no_package' => "IFNULL(np.no_package, 0)",
+    'sum_received' => "IFNULL(sr.sum_received, 0)",
+    'count_line' => "IFNULL(COUNT(DISTINCT r.id), 0)",
+    'sum_qty' => "IFNULL(SUM(sub_r.total_plan_qty), 0)",
+    'count_receiving' => "COUNT(DISTINCT r.id)",
+    'count_locating' => "COUNT(DISTINCT r.locating_user_id)",
+    'plan_part_qty' => "IFNULL(SUM(sub_r.total_plan_qty), 0)",
+    'part_qty' => "IFNULL(SUM(sr.sum_part_qty), 0)",
+    'container_no' => "IFNULL(h.container_no, '')",
+    'license_no' => "IFNULL(h.license_no, '')",
+    'supplier' => "IFNULL(su.supplier_name, '')",
+    'reference' => "IFNULL(h.reference, '')",
+    'warehouse' => "w.description",
+    'file' => "IFNULL(r.target_file, '')",
+    'staging' => "l.code",
+    'remark' => "IFNULL(h.remark, '') ",
+    'user' => "u.username"
+  ];
+
+  $having = ['date', 'reference', 'cotainer_no']; // Biasanya memasukan kolom untuk yang memiliki fungsi di depannya, seperti CONCAT(), IFNULL(), DATE_FORMAT()
+  $numeric = ['count_line', 'plan_part_qty', 'part_qty', 'sum_qty', 'sum_received']; // Biasanya memasukan untuk yang sepenuhnya angka dan beberapa fungsi yang berbau angka seperti SUM(), COUNT()
+
+  $join = [
+    'LEFT' => [
+      'mm_data_receiving AS r' => 'h.id = r.header_id',
+      'mm_master_location AS l' => 'h.staging_location_id = l.id',
+      'mm_master_warehouse AS w' => 'l.warehouse_id = w.id',
+      'mm_master_supplier AS su' => 'h.supplier_id = su.id',
+      'ap_user AS u' => 'h.user_id = u.user_id',
+      '(SELECT r.header_id, COUNT(DISTINCT r.material_id) AS no_package
+        FROM mm_data_receiving r
+        GROUP BY r.header_id) AS np' => 'np.header_id = h.id',
+      '(SELECT header_id, SUM(receiving_qty) AS sum_received, SUM(actual_part_qty) AS sum_part_qty
+        FROM mm_data_receiving r
+        GROUP BY header_id) AS sr' => 'sr.header_id = h.id',
+      '(SELECT header_id, material_id, plan_qty AS total_plan_qty
+          FROM mm_data_receiving
+          GROUP BY header_id, material_id) AS sub_r' => 'sub_r.header_id = h.id AND sub_r.material_id = r.material_id'
+    ],
+  ];
+
+  $where = ['h.status_id' => 1];
+  $group_by = ['h.id'];
+  $order_by = ['h.date' => 'ASC'];
+
+  $param = [
+    'select' => $fields,
+    'from' => 'mm_data_receiving_header AS h',
+    'join' => $join,
+    'where' => $where,
+    'filter' => $as_table ?  [
+      'data' => $get,
+      'having' => $having,
+      'numeric' => $numeric
+    ] : [],
+    'group_by' => $group_by,
+    'order_by' => $as_table ? $order_by : [],
+  ];
+
+  return $as_table ? $md->get_table($param) : $md->get_master($param);
+}
+```
+
+**Contoh 2: Table Master**
+
+Not Yet Finished Documentation
+
+Dengan fungsi **get_table()**, sangat fleksibel dan memungkinkan Anda untuk menangani data dalam jumlah besar dengan efisien. Dengan konfigurasi parameter yang tepat, Anda dapat menampilkan data sesuai kebutuhan dengan filter, pengelompokan, dan pengurutan yang presisi.
